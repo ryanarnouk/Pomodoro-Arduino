@@ -18,7 +18,7 @@ int buzzerPin = A4;
  */
 int pomoState = 0; // 0 --> work | 1 --> shortbreak | 2 --> longbreak
 int cycle = 0; // cycle of pomos
-bool pause = false; 
+bool pause = false; // current pause state
 int powerState = 0; // 0 --> off | 1 --> on
 
 // timer function state to prevent keep running in loop
@@ -42,6 +42,7 @@ long unsigned starttime;
 long unsigned endtime; 
 
 void setup() {
+  // init pin modes
   Serial.begin(9600); 
   pinMode(buttonPin, INPUT); 
   pinMode(greenLedPin, OUTPUT); 
@@ -167,7 +168,7 @@ void number(int digit, int number) {
     digitalWrite(pinF, LOW);   
     digitalWrite(pinG, LOW);
   }
-  delay(4); 
+  delay(4); // updates every 4 ms 
 }
 
 // timer
@@ -216,7 +217,7 @@ void timer(int minutes, int seconds) {
       endtime = millis(); 
     }
 
-    // state 
+    // state change
     timerRunning = false; 
     if (pomoState == 0 && cycle == 4) {
       pomoState = 2; 
@@ -230,6 +231,7 @@ void timer(int minutes, int seconds) {
   } 
 }
 
+// button controls 
 void buttoncontrols() {
   if (digitalRead(buttonPin) == HIGH) {
     if (!pause) {
@@ -247,6 +249,7 @@ void buttoncontrols() {
   }
 }
 
+// turning on function 
 void turnOnOff() {
   float pressLength = 0; 
 
@@ -280,8 +283,11 @@ void loop() {
   // fix up remaining parts of circuit to make button accessible
   // sleep mode after button pressed for 3 seconds
   turnOnOff(); 
+  // run when powerstate on 
   if (powerState == 1) {
+    // check if timer currently running
     if (!timerRunning) {    
+      // set state 
       if (pomoState == 0) {
         // work
         digitalWrite(greenLedPin, LOW); 
